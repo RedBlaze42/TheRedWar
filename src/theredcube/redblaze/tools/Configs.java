@@ -13,35 +13,37 @@ import org.bukkit.plugin.Plugin;
 public class Configs {
 	
 	private Plugin plugin;
+	private String name;
 	
-	public Configs(Plugin plugin){
+	public Configs(Plugin plugin,String nom){
 		this.plugin = plugin;
+		this.name = nom;
 	}
 	
 	//Config
 	public FileConfiguration customConfig = null;
 	public File customConfigFile = null;
-	public FileConfiguration getCustomConfig(String name) {//Get
-	    if (customConfig == null) {
+	public FileConfiguration getCustomConfig() {//Get
 	        try {
-				reloadCustomConfig(name);
+				reloadCustomConfig();
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				plugin.getLogger().severe("[TheRedWar]Probleme d'encodage de conifg");
 				return null;
 			}
-	    }
+	    
 	    return customConfig;
 	}
 	
-	public void reloadCustomConfig(String name) throws UnsupportedEncodingException {//Load
+	public void reloadCustomConfig() throws UnsupportedEncodingException {//Load
 	    if (customConfigFile == null) {
 	    customConfigFile = new File(plugin.getDataFolder(),name + ".yml");
 	    }
 	    customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
 	 
 	    // Look for defaults in the jar
+	    
 	    Reader defConfigStream = new InputStreamReader(plugin.getResource(name + ".yml"), "UTF8");
 	    if (defConfigStream != null) {
 	        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
@@ -57,8 +59,9 @@ public class Configs {
 	    }
 	    try {
 	        customConfig.save(customConfigFile);
+	        reloadCustomConfig();
 	    } catch (IOException ex) {
-	       
+	       ex.printStackTrace();
 	    }
 	}
 }

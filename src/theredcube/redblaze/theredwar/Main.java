@@ -1,5 +1,6 @@
 package theredcube.redblaze.theredwar;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.logging.Logger;
@@ -24,17 +25,26 @@ import theredcube.redblaze.tools.Custom;
 
 public class Main extends JavaPlugin implements Listener{
 	World world;
-	Configs joueursConf = new Configs(this);
-	Configs regenConf = new Configs(this);
-	FileConfiguration joueurs = joueursConf.getCustomConfig("joueurs");
+	Configs joueursConf = new Configs(this,"joueurs");
+	Configs regenConf = new Configs(this,"regenBlock");
+	FileConfiguration joueurs = joueursConf.getCustomConfig();
 	public Logger log = getServer().getLogger();
 	
 	
 	
 	public void onEnable(){
-		world = getServer().getWorld("war");
+		world = getServer().getWorlds().get(0);
 		getServer().getPluginManager().registerEvents(this, this);// Enregistrement des events
 		log.info("[TheRedWar] Chargement terminé");
+		if(regenConf.getCustomConfig().contains("blocksx")){
+			FileConfiguration regen = regenConf.getCustomConfig();
+			regen.set("blocksx", new ArrayList<Integer>());
+			regen.set("blocksy", new ArrayList<Integer>());
+			regen.set("blocksz", new ArrayList<Integer>());
+			regen.set("blocksid", new ArrayList<Integer>());
+			regen.set("blocksh", new ArrayList<Integer>());
+			regenConf.saveCustomConfig();
+		}
 		BukkitScheduler s = Bukkit.getScheduler();
 		s.scheduleSyncRepeatingTask(this, new Runnable(){
 
@@ -42,14 +52,14 @@ public class Main extends JavaPlugin implements Listener{
 			public void run() {
 				regenblocks();
 				
-			}}, 0, 72000);
+			}}, 0, 500);
 		
 		
 	}
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation" })
 	public void regenblocks() {
-		FileConfiguration regen = regenConf.getCustomConfig("regenBlocks");
+		FileConfiguration regen = regenConf.getCustomConfig();
 		java.util.GregorianCalendar calendar = new GregorianCalendar();
 		int h = calendar.get(Calendar.HOUR_OF_DAY);
 		for(int i = 0;i<regen.getIntegerList("blocksx").size();i++){
@@ -70,7 +80,7 @@ public class Main extends JavaPlugin implements Listener{
 	public void onPlace(BlockPlaceEvent event){
 		// TODO Verifi si dans un village et si oui si c'est dans la maison du player
 		Block block = event.getBlock();
-		FileConfiguration regen = regenConf.getCustomConfig("regenBlocks");
+		FileConfiguration regen = regenConf.getCustomConfig();
 		regen.getIntegerList("blocksh").add(new GregorianCalendar().get(Calendar.HOUR_OF_DAY));
 		regen.getIntegerList("blocksx").add(block.getX());
 		regen.getIntegerList("blocksy").add(block.getY());
@@ -79,21 +89,24 @@ public class Main extends JavaPlugin implements Listener{
 		regenConf.saveCustomConfig();
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void onDestroy(BlockBreakEvent event){
 		// TODO Verifi si dans un village et si oui si c'est dans la maison du player
 		
 		Block block = event.getBlock();
-		FileConfiguration regen = regenConf.getCustomConfig("regenBlocks");
+		FileConfiguration regen = regenConf.getCustomConfig();
 		regen.getIntegerList("blocksh").add(new GregorianCalendar().get(Calendar.HOUR_OF_DAY));
 		regen.getIntegerList("blocksx").add(block.getX());
 		regen.getIntegerList("blocksy").add(block.getY());
 		regen.getIntegerList("blocksz").add(block.getZ());
-		regen.getIntegerList("blocksid").add(event.get);
+		regen.getIntegerList("blocksid").add(block.getTypeId());
 		regenConf.saveCustomConfig();
 	}
 	
 	public void onDisable(){
 		Bukkit.getScheduler().cancelTasks(this);// Cancel les tasks
+		regenConf.saveCustomConfig();
+		joueursConf.saveCustomConfig();
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -105,7 +118,9 @@ public class Main extends JavaPlugin implements Listener{
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event){
 		Player player = event.getPlayer();
-		if(joueurs.contains(player.getName())){
+		
+		FileConfiguration joueurs = joueursConf.getCustomConfig();
+		if(!joueurs.contains(player.getName())){
 			event.setJoinMessage(Message.messagedebienvenue(player.getName()));
 			joueurs.set(player.getName() + ".money", 500);
 			Custom.sendTitle(player, Message.titlebienvenue(player.getName()), Message.subtitlebienvenue(player.getName()));

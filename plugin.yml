@@ -1,6 +1,6 @@
-name: TheRedWar
-version: 0.0.1
-description: Plugin codé par Red pour faire fonctionner le concept WarLand
+--- 
 author: RedBlaze42
-website: https://www.youtube.com/channel/UCkdxFt93jnYX6oUkgTHjz3Q
-main: theredcube.redblaze.theredwar.main
+main: theredcube.redblaze.theredwar.Main
+name: TheRedWar
+version: "0.0.1"
+website: "https://www.youtube.com/channel/UCkdxFt93jnYX6oUkgTHjz3Q"
