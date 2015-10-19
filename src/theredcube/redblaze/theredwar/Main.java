@@ -1,5 +1,6 @@
 package theredcube.redblaze.theredwar;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -25,14 +26,14 @@ import theredcube.redblaze.tools.Custom;
 
 public class Main extends JavaPlugin implements Listener{
 	World world;
-	Configs joueursConf = new Configs(this,"joueurs");
 	Configs regenConf = new Configs(this,"regenBlock");
-	FileConfiguration joueurs = joueursConf.getCustomConfig();
+	PlayerUtils players;
 	public Logger log = getServer().getLogger();
 	
 	
 	
 	public void onEnable(){
+		players = new PlayerUtils(new File("plugins/TheRedFac/Factions"));
 		world = getServer().getWorlds().get(0);
 		getServer().getPluginManager().registerEvents(this, this);// Enregistrement des events
 		log.info("[TheRedWar] Chargement terminé");
@@ -106,7 +107,7 @@ public class Main extends JavaPlugin implements Listener{
 	public void onDisable(){
 		Bukkit.getScheduler().cancelTasks(this);// Cancel les tasks
 		regenConf.saveCustomConfig();
-		joueursConf.saveCustomConfig();
+		
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
