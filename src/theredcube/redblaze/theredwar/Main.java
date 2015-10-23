@@ -33,7 +33,7 @@ public class Main extends JavaPlugin implements Listener{
 	
 	
 	public void onEnable(){
-		players = new PlayerUtils(new File("plugins/TheRedFac/Factions"));
+		players = new PlayerUtils(new File("plugins/TheRedFac/Factions"), this.getServer());
 		world = getServer().getWorlds().get(0);
 		getServer().getPluginManager().registerEvents(this, this);// Enregistrement des events
 		log.info("[TheRedWar] Chargement terminé");
@@ -120,15 +120,10 @@ public class Main extends JavaPlugin implements Listener{
 	public void onJoin(PlayerJoinEvent event){
 		Player player = event.getPlayer();
 		
-		FileConfiguration joueurs = joueursConf.getCustomConfig();
-		if(!joueurs.contains(player.getName())){
-			event.setJoinMessage(Message.messagedebienvenue(player.getName()));
-			joueurs.set(player.getName() + ".money", 500);
-			Custom.sendTitle(player, Message.titlebienvenue(player.getName()), Message.subtitlebienvenue(player.getName()));
-			joueursConf.saveCustomConfig();
-		}
+
 		
 
 	}
+	
 	
 }

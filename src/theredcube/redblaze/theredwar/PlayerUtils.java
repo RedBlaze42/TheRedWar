@@ -11,23 +11,27 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Server;
+import org.bukkit.entity.Player;
+
 public class PlayerUtils
 {
 	private File path;
 	private static Map<String, RedPlayer> redplayers = new HashMap<String, RedPlayer>();
 	
-	public PlayerUtils(File path)
+	public PlayerUtils(File path,Server serv)
 	{
 		this.path = path;
 	}
 
-	public RedPlayer getPlayer(String name)
+	public RedPlayer getPlayer(Player player)
 	{
-		RedPlayer redplayer = redplayers.get(name);
+		
+		RedPlayer redplayer = redplayers.get(player.getUniqueId().toString());
 		if (redplayer != null)
 			return redplayer;
 
-		File file = new File(this.path + "/" + name + ".obj");
+		File file = new File(this.path + "/" + player.getUniqueId().toString() + ".obj");
 		if(!file.exists())
 			return null;
 		ObjectInputStream ois;
@@ -40,20 +44,20 @@ public class PlayerUtils
 			redplayer = (RedPlayer)ois.readObject();
 			ois.close();
 			bis.close();
-			redplayers.put(name, redplayer);
+			redplayers.put(player.getUniqueId().toString(), redplayer);
 		}
 		catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
-			redplayers.remove(name);
+			redplayers.remove(player.getUniqueId().toString());
 		}
 		return redplayer;  
 	}
 
-	public boolean setFaction(RedPlayer redplayer)
+	public boolean set(RedPlayer redplayer)
 	{
-		redplayers.put(redplayer.getName(), redplayer);
-		File file = new File(this.path + "/" + redplayer.getName() + ".obj");
+		redplayers.put(redplayer.getUid(), redplayer);
+		File file = new File(this.path + "/" + redplayer.getUid() + ".obj");
 		ObjectOutputStream oos;
 		BufferedOutputStream bos;
 
@@ -78,7 +82,7 @@ public class PlayerUtils
 	public void removeFaction(RedPlayer redplayer)
 	{
 		redplayers.remove(redplayer);
-		File file = new File(this.path + "/" + redplayer.getName() + ".obj");
+		File file = new File(this.path + "/" + redplayer.getUid() + ".obj");
 		if (file.exists())
 			file.delete();
 	}
